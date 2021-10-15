@@ -1,82 +1,94 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { StyleSheet, Text, SafeAreaView, TouchableOpacity, Animated, View } from "react-native";
 
 export default function App() {
     const [counter, setCounter] = useState(0);
     const [auto, setAuto] = useState(false);
-    const [autor, setAutor] = useState(false);
+    const [showName, setShowName] = useState(false)
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    const showAutor = () => {
+        setShowName(true);
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true
+        }).start();
+        setTimeout(() => {
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 5000,
+                useNativeDriver: true
+            }).start();
+            setTimeout(() => {
+                setShowName(false);
+            }, 3000);
+        }, 5000);
+
+
+    };
     const increaseCounter = () => {
-        setCounter((current) => current == 10 ? current : current + 1);
+        setCounter((current) => current == 1000 ? current : current + 1);
     };
     const decreaseCounter = () => {
         setCounter((current) => current == 0 ? current : current - 1);
     };
-
     useEffect(() => {
-        let autoIncrement;
-        if (counter == 10) setAuto(false);
+        if (counter == 1000) setAuto(false);
         if (auto) {
-            autoIncrement = setInterval(() => {
-                setCounter(current => current + 1);
-            }, 300);
-        }
-        return () => {
-            clearInterval(autoIncrement);
+            setTimeout(() => {
+                increaseCounter();
+            }, 1);
         }
     }, [auto, counter]);
 
 
 
     return (
-        <View style={styles.container}>
-            {autor ? (
-                <Text style={{ ...styles.normalText, ...styles.boldText, ...styles.autorText }}>
-                    Alejandro Herrera
-                </Text>
-            ) : null}
-            <Text style={{ ...styles.normalText, ...styles.boldText }}>
-                Counter
-            </Text>
-            <Text style={styles.normalText}>{counter}</Text>
-            <TouchableOpacity
-                onPress={increaseCounter}
-                style={styles.buttonStyles}
+        <SafeAreaView style={styles.container}>
+            <Animated.View
+                style={[
+                    styles.fadingContainer,
+                    {
+                        opacity: fadeAnim,
+                        zIndex: showName ? 1 : 0
+                    }
+                ]}
             >
-                <Text style={styles.buttonText}>+</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={decreaseCounter}
-                style={styles.buttonStyles}
-            >
-                <Text style={styles.buttonText}>-</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setAuto(!auto)} style={styles.buttonPlay}>
-                <Text style={styles.buttonText}>⏯</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setAutor(!autor)} style={styles.autorButton}>
-                <Text style={styles.buttonText}> 👁️‍🗨️ autor</Text>
-            </TouchableOpacity>
-            {counter > 10 || counter < 0 ? (
-                <Text style={{ ...styles.normalText, ...styles.notValid }}>
-                    {"Not in range"}
+                <Text style={styles.fadingText}>Alejandro Herrera 😁</Text>
+            </Animated.View>
+            <View>
+                <Text style={{ ...styles.normalText, ...styles.boldText }}>
+                    Counter
                 </Text>
-            ) : (
-                <Text
-                    style={{
-                        ...styles.normalText,
-                        color:
-                            counter >= 8
-                                ? styles.valid.color
-                                : styles.notValid.color,
-                    }}
+                <Text style={styles.normalText}>{auto ? `(ﾉ◕ヮ◕)ﾉ  ${counter} ` : counter}</Text>
+                <TouchableOpacity
+                    onPress={increaseCounter}
+                    style={styles.buttonStyles}
                 >
-                    {counter >= 8 ? "Is valid" : "Is not valid"}
-                </Text>
-            )}
+                    <Text style={styles.buttonText}>+</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={decreaseCounter}
+                    style={styles.buttonStyles}
+                    keyu
+                >
+                    <Text style={styles.buttonText}>-</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => { counter == 1000 ? '' : setAuto(!auto) }} style={styles.buttonPlay}>
+                    <Text style={styles.buttonText}>⏯</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.infoButton}>
+                <TouchableOpacity onPress={showAutor} style={styles.autorButton}>
+                    <Text style={styles.buttonTextAutor}>i</Text>
+                </TouchableOpacity>
+            </View>
 
             <StatusBar style="auto" />
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -96,9 +108,14 @@ const styles = StyleSheet.create({
     normalText: {
         fontSize: 36,
         color: "white",
+        alignSelf: "center"
     },
     buttonText: {
         fontSize: 40,
+        color: "white",
+    },
+    buttonTextAutor: {
+        fontSize: 36,
         color: "white",
     },
     boldText: {
@@ -121,14 +138,26 @@ const styles = StyleSheet.create({
         margin: 10
     },
     autorButton: {
-        width: 200,
+        width: 50,
+        height: 50,
         borderRadius: 50,
-        backgroundColor: 'indigo',
+        backgroundColor: 'dodgerblue',
         alignItems: 'center',
-        padding: 5,
-        margin: 10
+
     },
-    autorText: {
-        color: 'indigo'
-    }
+    infoButton: {
+        top: '20%',
+        left: '40%'
+
+    },
+    fadingContainer: {
+        top: '30%',
+        padding: 20,
+        borderRadius: 10,
+        backgroundColor: "firebrick"
+    },
+    fadingText: {
+        fontSize: 28,
+        fontWeight: 'bold',
+    },
 });
